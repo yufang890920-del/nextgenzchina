@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextGenZChina.id — University Finder for Indonesian Students</title>
+<style>
+  :root{
+    --bg:#0f1729; --panel:#16213e; --panel2:#1c2a4a; --ink:#eef2ff; --muted:#9fb0d0;
+    --accent:#e63946; --accent2:#ffb703; --good:#2dd4bf; --line:#26365c;
+    --reach:#f472b6; --match:#34d399; --safety:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(160deg,#0b1220,#14213d);color:var(--ink);line-height:1.5}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 18px 80px}
+  header.top{text-align:center;padding:20px 0 8px}
+  header.top h1{margin:0;font-size:28px;letter-spacing:.3px}
+  header.top p{margin:6px 0 0;color:var(--muted);font-size:15px}
+  .flagbar{height:6px;border-radius:6px;margin:14px auto 0;max-width:240px;background:linear-gradient(90deg,#e63946 0 50%,#ffffff 50% 100%);border:1px solid var(--line)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:22px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  h2.section{font-size:16px;margin:0 0 4px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px}
+  .hint{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  label.field{display:block;font-size:14px;margin-bottom:6px;font-weight:600}
+  .sub{font-weight:400;color:var(--muted);font-size:12px}
+  input[type=range]{width:100%}
+  select,input[type=number]{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chip{padding:8px 12px;border:1px solid var(--line);border-radius:20px;background:var(--panel2);cursor:pointer;font-size:13px;user-select:none;transition:.15s}
+  .chip:hover{border-color:var(--accent2)}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .toggle{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .switch{position:relative;width:48px;height:26px;flex:0 0 auto}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:var(--panel2);border:1px solid var(--line);border-radius:30px;cursor:pointer;transition:.2s}
+  .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:var(--good)}
+  .switch input:checked + .slider:before{transform:translateX(22px);background:#04221c}
+  .rangeval{float:right;color:var(--accent2);font-weight:700}
+  button.go{margin-top:22px;width:100%;padding:15px;border:none;border-radius:12px;background:linear-gradient(90deg,var(--accent),#c92a37);color:#fff;font-size:17px;font-weight:700;cursor:pointer;letter-spacing:.3px}
+  button.go:hover{filter:brightness(1.08)}
+  .results{margin-top:10px}
+  .summarybar{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 18px}
+  .pill{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--muted)}
+  .pill b{color:var(--ink)}
+  .uni{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+  .uni .rank{position:absolute;top:0;right:0;font-size:60px;font-weight:800;opacity:.07;padding:0 14px}
+  .uni h3{margin:0 0 2px;font-size:19px}
+  .uni .loc{color:var(--muted);font-size:13px;margin-bottom:10px}
+  .tagrow{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+  .tag{font-size:12px;padding:4px 10px;border-radius:8px;background:#0e1830;border:1px solid var(--line);color:var(--muted)}
+  .tag.h{color:var(--good);border-color:#1f5a52}
+  .cat{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:6px;text-transform:uppercase;margin-bottom:8px}
+  .cat.reach{background:rgba(244,114,182,.15);color:var(--reach);border:1px solid var(--reach)}
+  .cat.match{background:rgba(52,211,153,.15);color:var(--match);border:1px solid var(--match)}
+  .cat.safety{background:rgba(96,165,250,.15);color:var(--safety);border:1px solid var(--safety)}
+  .scorebox{position:absolute;top:16px;right:18px;text-align:center}
+  .scorebox .num{font-size:30px;font-weight:800;line-height:1}
+  .scorebox .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .reasons{list-style:none;padding:0;margin:8px 0 0;font-size:13.5px}
+  .reasons li{padding:3px 0 3px 22px;position:relative}
+  .reasons li:before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:700}
+  .reasons li.warn:before{content:"!";color:var(--accent2)}
+  .meter{height:7px;background:#0e1830;border-radius:6px;overflow:hidden;margin-top:6px}
+  .meter > i{display:block;height:100%;border-radius:6px}
+  .disclaimer{font-size:12px;color:var(--muted);margin-top:24px;border-top:1px solid var(--line);padding-top:14px}
+  .empty{text-align:center;color:var(--muted);padding:30px}
+  a.link{color:var(--accent2)}
+  /* ---- lead-capture / consultation CTA ---- */
+  .lead{background:linear-gradient(135deg,#1c2a4a,#241a2e);border:1px solid var(--accent2);border-radius:16px;padding:22px;margin-bottom:20px;position:relative;overflow:hidden}
+  .lead:before{content:"🎯";position:absolute;top:-10px;right:6px;font-size:90px;opacity:.08}
+  .lead h2{margin:0 0 6px;font-size:20px;color:#fff}
+  .lead .big{color:var(--accent2);font-weight:800}
+  .lead p.sub2{margin:0 0 16px;color:var(--muted);font-size:14px;max-width:560px}
+  .lead .frow{display:flex;gap:10px;flex-wrap:wrap}
+  .lead input{flex:1 1 200px;padding:13px;border-radius:10px;border:1px solid var(--line);background:#0e1830;color:var(--ink);font-size:15px}
+  .lead input:focus{outline:none;border-color:var(--accent2)}
+  .lead button{flex:1 1 100%;margin-top:12px;padding:15px;border:none;border-radius:12px;background:linear-gradient(90deg,#25D366,#1ebe5d);color:#04221c;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .lead button:hover{filter:brightness(1.07)}
+  .lead .trust{margin:12px 0 0;font-size:12px;color:var(--muted)}
+  .lead .err{color:var(--accent);font-size:13px;margin:8px 0 0;min-height:16px}
+  .ctaMini{text-align:center;margin-top:8px}
+  .ctaMini button{padding:13px 22px;border:1px solid #25D366;border-radius:12px;background:transparent;color:#25D366;font-size:15px;font-weight:700;cursor:pointer}
+  .ctaMini button:hover{background:rgba(37,211,102,.1)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>🎓 NextGenZChina.id</h1>
+    <p>Study in China · University Finder for Indonesian students — find universities that fit your grades, major, budget &amp; lifestyle</p>
+    <div class="flagbar"></div>
+  </header>
+
+  <!-- ============ INPUT FORM ============ -->
+  <div class="card" id="form">
+    <h2 class="section">1 · Your Academic Profile</h2>
+    <p class="hint">Tell us how you're doing in school. Use your average grade out of 100.</p>
+    <div class="grid">
+      <div>
+        <label class="field">Average school grade <span class="rangeval" id="gradeVal">80</span><span class="sub"> / 100</span></label>
+        <input type="range" id="grade" min="50" max="100" value="80" oninput="gradeVal.textContent=this.value">
+      </div>
+      <div>
+        <label class="field">English level</label>
+        <select id="english">
+          <option value="3">Fluent (IELTS 6.5+ / TOEFL 90+)</option>
+          <option value="2" selected>Good (IELTS 5.5–6.0)</option>
+          <option value="1">Basic / still improving</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">Chinese level (HSK)</label>
+        <select id="hsk">
+          <option value="0" selected>None yet</option>
+          <option value="1">HSK 1–2 (beginner)</option>
+          <option value="2">HSK 3–4 (intermediate)</option>
+          <option value="3">HSK 5–6 (advanced)</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">Preferred teaching language</label>
+        <select id="teach">
+          <option value="en" selected>English-taught program</option>
+          <option value="zh">Chinese-taught (or willing to learn)</option>
+          <option value="any">Either is fine</option>
+        </select>
+      </div>
+    </div>
+
+    <h2 class="section" style="margin-top:24px">2 · Major Preference</h2>
+    <p class="hint">Pick the field you most want to study.</p>
+    <div class="chips" id="majorChips"></div>
+
+    <h2 class="section" style="margin-top:24px">3 · Budget</h2>
+    <p class="hint">Your total yearly budget for tuition + living costs (in USD). Typical range: $3,000–$12,000/year.</p>
+    <div class="grid">
+      <div>
+        <label class="field">Yearly budget <span class="rangeval"><span id="budgetVal">6000</span> USD</span></label>
+        <input type="range" id="budget" min="2500" max="15000" step="500" value="6000" oninput="budgetVal.textContent=this.value">
+      </div>
+      <div>
+        <label class="field">Need a scholarship?</label>
+        <select id="scholar">
+          <option value="must">Yes — I need scholarship options</option>
+          <option value="nice" selected>Would be nice, not required</option>
+          <option value="no">No, family can fund it</option>
+        </select>
+      </div>
+    </div>
+
+    <h2 class="section" style="margin-top:24px">4 · Religious &amp; Lifestyle Needs</h2>
+    <p class="hint">Important for many Indonesian Muslim students.</p>
+    <div class="grid">
+      <div>
+        <label class="field">Halal food &amp; Muslim facilities</label>
+        <div class="toggle">
+          <label class="switch"><input type="checkbox" id="halal" checked><span class="slider"></span></label>
+          <span class="sub" id="halalTxt">Required — only show Muslim-friendly campuses</span>
+        </div>
+      </div>
+      <div>
+        <label class="field">Climate preference</label>
+        <select id="climate">
+          <option value="warm">Warm (similar to Indonesia)</option>
+          <option value="mild" selected>Mild — don't mind some winter</option>
+          <option value="any">No preference</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">City type</label>
+        <select id="city">
+          <option value="any" selected>No preference</option>
+          <option value="mega">Big international city</option>
+          <option value="mid">Mid-size / quieter &amp; cheaper</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">University prestige</label>
+        <select id="prestige">
+          <option value="any" selected>Balance prestige &amp; admission odds</option>
+          <option value="top">Aim high (top-ranked)</option>
+          <option value="safe">Prioritize easy admission</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="go" onclick="recommend()">🔍 Find my universities</button>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div class="results" id="results"></div>
+
+  <p class="disclaimer">
+    ⚠️ <b>Disclaimer:</b> This tool gives general guidance based on typical, approximate figures for tuition, admission and facilities (2024–2025). Universities change requirements, fees and scholarship rules every year. Always confirm details on the official university website and the
+    <a class="link" href="https://www.campuschina.org" target="_blank">China Scholarship Council (CSC) portal</a> before applying. Halal/prayer facilities also vary by campus and year.
+  </p>
+</div>
+
+<script>
+/* ============================================================
+   ⚙️ CONFIG — GANTI nomor di bawah dgn nomor WhatsApp bisnis kamu.
+   Format internasional, TANPA tanda + atau spasi.
+   Contoh Indonesia: 628123456789  (62 = kode negara, buang angka 0 di depan)
+   ============================================================ */
+const WA_NUMBER = "6282118375931";   // WhatsApp Business NextGenZChina.id
+const BRAND     = "NextGenZChina.id";  // nama brand yg muncul di pesan
+
+/* Endpoint Google Sheet (Apps Script /exec URL) untuk merekam SEMUA lead.
+   Kosongkan ("") kalau belum siap — form tetap jalan, cuma tidak merekam.
+   Tempel URL yg kamu dapat setelah deploy Apps Script di sini: */
+const LEAD_ENDPOINT = "";
+
+/* ============================================================
+   DATA: curated set of Chinese universities popular with /
+   suitable for international (incl. Indonesian) students.
+   Fields:
+   tier        : selectivity 1(most selective)..5(open)
+   reqGrade    : approx min competitive avg grade /100
+   tuition     : approx USD/year tuition (intl undergrad)
+   living      : approx USD/year living cost in that city
+   en          : strength of English-taught offerings 0..3
+   majors      : strong fields
+   halal       : Muslim-friendliness 0..5 (food+prayer+community)
+   climate     : 'warm'|'mild'|'cold'
+   citytype    : 'mega'|'mid'
+   scholarship : 0..3 likelihood/availability of scholarships
+   ============================================================ */
+const UNIS = [
+ {name:"Tsinghua University",city:"Beijing",tier:1,reqGrade:95,tuition:4500,living:5500,en:3,halal:3,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Engineering","Computer Science","Business","Architecture","Sciences"]},
+ {name:"Peking University",city:"Beijing",tier:1,reqGrade:95,tuition:4200,living:5500,en:3,halal:3,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Business","Economics","Medicine","Law","Sciences","Social Sciences"]},
+ {name:"Fudan University",city:"Shanghai",tier:1,reqGrade:92,tuition:4800,living:6000,en:3,halal:3,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Medicine","Business","Economics","Journalism","Sciences"]},
+ {name:"Shanghai Jiao Tong University",city:"Shanghai",tier:1,reqGrade:92,tuition:5200,living:6000,en:3,halal:3,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Engineering","Computer Science","Medicine","Business","Naval Architecture"]},
+ {name:"Zhejiang University",city:"Hangzhou",tier:1,reqGrade:90,tuition:4200,living:4800,en:2,halal:3,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Engineering","Computer Science","Agriculture","Business","Sciences"]},
+ {name:"Tongji University",city:"Shanghai",tier:2,reqGrade:88,tuition:4500,living:6000,en:3,halal:3,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Architecture","Civil Engineering","Engineering","Design","Medicine"]},
+ {name:"Nanjing University",city:"Nanjing",tier:2,reqGrade:88,tuition:3800,living:4500,en:2,halal:3,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Sciences","Business","Social Sciences","Computer Science","Astronomy"]},
+ {name:"Wuhan University",city:"Wuhan",tier:2,reqGrade:85,tuition:3600,living:4000,en:2,halal:3,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Law","Engineering","Computer Science","Business","Surveying"]},
+ {name:"Xiamen University",city:"Xiamen",tier:2,reqGrade:85,tuition:3800,living:4200,en:2,halal:3,climate:"warm",citytype:"mid",scholarship:2,
+  majors:["Business","Economics","Marine Sciences","Chemistry","Journalism"]},
+ {name:"Sun Yat-sen University",city:"Guangzhou",tier:2,reqGrade:86,tuition:4000,living:4800,en:2,halal:3,climate:"warm",citytype:"mega",scholarship:2,
+  majors:["Medicine","Business","Sciences","Tourism","Social Sciences"]},
+ {name:"South China University of Technology",city:"Guangzhou",tier:3,reqGrade:82,tuition:3600,living:4500,en:2,halal:3,climate:"warm",citytype:"mega",scholarship:2,
+  majors:["Engineering","Architecture","Computer Science","Materials","Business"]},
+ {name:"Beijing Institute of Technology",city:"Beijing",tier:2,reqGrade:85,tuition:3800,living:5200,en:2,halal:3,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Engineering","Computer Science","Aerospace","Mechatronics","Business"]},
+ {name:"Tianjin University",city:"Tianjin",tier:3,reqGrade:82,tuition:3400,living:4200,en:2,halal:4,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Engineering","Architecture","Chemical Engineering","Computer Science"]},
+ {name:"Harbin Institute of Technology",city:"Harbin",tier:2,reqGrade:85,tuition:3200,living:3500,en:2,halal:3,climate:"cold",citytype:"mid",scholarship:3,
+  majors:["Engineering","Aerospace","Computer Science","Robotics","Materials"]},
+ {name:"Donghua University",city:"Shanghai",tier:3,reqGrade:80,tuition:3800,living:6000,en:2,halal:3,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Fashion & Design","Textile Engineering","Materials","Business"]},
+ {name:"Beijing Language and Culture University",city:"Beijing",tier:3,reqGrade:75,tuition:3200,living:5200,en:1,halal:4,climate:"mild",citytype:"mega",scholarship:2,
+  majors:["Chinese Language","Linguistics","Education","International Relations","Business"]},
+ {name:"Jiangsu University",city:"Zhenjiang",tier:4,reqGrade:72,tuition:2800,living:3200,en:3,halal:3,climate:"mild",citytype:"mid",scholarship:3,
+  majors:["Medicine (MBBS)","Engineering","Agriculture","Business","Automotive"]},
+ {name:"Yangzhou University",city:"Yangzhou",tier:4,reqGrade:70,tuition:2600,living:3000,en:3,halal:3,climate:"mild",citytype:"mid",scholarship:3,
+  majors:["Medicine (MBBS)","Veterinary","Agriculture","Education","Business"]},
+ {name:"China Medical University",city:"Shenyang",tier:3,reqGrade:80,tuition:5500,living:3500,en:3,halal:3,climate:"cold",citytype:"mega",scholarship:1,
+  majors:["Medicine (MBBS)","Dentistry","Pharmacy","Nursing"]},
+ {name:"Hohai University",city:"Nanjing",tier:4,reqGrade:72,tuition:2800,living:4500,en:2,halal:3,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Civil Engineering","Water Resources","Environmental Eng","Business"]},
+ {name:"Xi'an Jiaotong University",city:"Xi'an",tier:2,reqGrade:86,tuition:3600,living:3800,en:2,halal:5,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Engineering","Medicine","Business","Energy","Computer Science"]},
+ {name:"Northwest University",city:"Xi'an",tier:4,reqGrade:74,tuition:2800,living:3500,en:1,halal:5,climate:"mild",citytype:"mega",scholarship:3,
+  majors:["Sciences","Archaeology","Economics","Chemistry","Geology"]},
+ {name:"Lanzhou University",city:"Lanzhou",tier:3,reqGrade:80,tuition:2600,living:3000,en:1,halal:5,climate:"mild",citytype:"mid",scholarship:3,
+  majors:["Sciences","Chemistry","Ecology","Atmospheric Sciences","Medicine"]},
+ {name:"Ningxia University",city:"Yinchuan",tier:5,reqGrade:65,tuition:2400,living:2800,en:1,halal:5,climate:"mild",citytype:"mid",scholarship:3,
+  majors:["Agriculture","Engineering","Arabic","Business","Education"]},
+ {name:"Xinjiang University",city:"Urumqi",tier:4,reqGrade:70,tuition:2400,living:2800,en:1,halal:5,climate:"cold",citytype:"mid",scholarship:3,
+  majors:["Engineering","Sciences","Languages","Resources","Business"]},
+ {name:"University of Science & Technology of China",city:"Hefei",tier:1,reqGrade:92,tuition:3800,living:3800,en:2,halal:3,climate:"mild",citytype:"mid",scholarship:3,
+  majors:["Sciences","Physics","Computer Science","Engineering","Mathematics"]},
+];
+
+/* major options shown as chips */
+const MAJORS = ["Engineering","Computer Science","Medicine (MBBS)","Business","Economics",
+ "Architecture","Sciences","Fashion & Design","Law","Chinese Language","Agriculture","Social Sciences"];
+
+let selectedMajor = "Engineering";
+let LEAD_CTX = null;
+
+/* render major chips */
+const mc = document.getElementById('majorChips');
+MAJORS.forEach((m,i)=>{
+  const el=document.createElement('div');
+  el.className='chip'+(i===0?' on':'');
+  el.textContent=m;
+  el.onclick=()=>{document.querySelectorAll('#majorChips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');selectedMajor=m;};
+  mc.appendChild(el);
+});
+
+/* halal toggle text */
+const halalEl=document.getElementById('halal');
+halalEl.addEventListener('change',()=>{
+  document.getElementById('halalTxt').textContent = halalEl.checked
+   ? "Required — only show Muslim-friendly campuses"
+   : "Not required — show all universities";
+});
+
+/* helper: does a uni offer a major (fuzzy) */
+function hasMajor(uni,major){
+  const key = major.replace(/\s*\(.*\)/,'').toLowerCase();
+  return uni.majors.some(m=>{
+    const ml=m.toLowerCase();
+    return ml.includes(key)||key.includes(ml.split(' ')[0]);
+  });
+}
+
+function recommend(){
+  const grade=+document.getElementById('grade').value;
+  const english=+document.getElementById('english').value;
+  const hsk=+document.getElementById('hsk').value;
+  const teach=document.getElementById('teach').value;
+  const budget=+document.getElementById('budget').value;
+  const scholar=document.getElementById('scholar').value;
+  const halal=document.getElementById('halal').checked;
+  const climate=document.getElementById('climate').value;
+  const city=document.getElementById('city').value;
+  const prestige=document.getElementById('prestige').value;
+
+  const scored=[];
+
+  UNIS.forEach(u=>{
+    // HARD FILTER: halal requirement
+    if(halal && u.halal<3) return;
+
+    let score=0, max=0;
+    const reasons=[], warns=[];
+
+    // --- Academic fit (weight 30) ---
+    max+=30;
+    const diff=grade-u.reqGrade;
+    let acad, cat;
+    if(diff>=5){acad=30;cat='safety';reasons.push("Your grades comfortably meet the typical bar — strong admission chance.");}
+    else if(diff>=-3){acad=27;cat='match';reasons.push("Your grades are right around what's typically competitive here.");}
+    else if(diff>=-10){acad=15;cat='reach';warns.push("Grades are a bit below the usual bar — a reach, but worth trying.");}
+    else {acad=5;cat='reach';warns.push("This is a high reach for your current grades.");}
+    score+=acad;
+
+    // --- Major match (weight 22) ---
+    max+=22;
+    if(hasMajor(u,selectedMajor)){score+=22;reasons.push(selectedMajor+" is one of this university's recognized strengths.");}
+    else {score+=6;warns.push(selectedMajor+" is not a flagship program here.");}
+
+    // --- Language fit (weight 14) ---
+    max+=14;
+    if(teach==='en'){
+      if(u.en>=3){score+=14;reasons.push("Strong selection of English-taught programs.");}
+      else if(u.en===2){score+=10;reasons.push("Offers some English-taught programs.");}
+      else {score+=3;warns.push("Limited English-taught options — mostly Chinese-taught.");}
+    } else if(teach==='zh'){
+      score+=12;
+      if(hsk>=2) reasons.push("Your HSK level fits Chinese-taught study.");
+      else warns.push("Chinese-taught study will need HSK 4+ — plan a language year.");
+    } else { score+= (u.en>=2?13:9); }
+
+    // --- Budget fit (weight 22) ---
+    max+=22;
+    const totalCost=u.tuition+u.living;
+    if(budget>=totalCost){
+      score+=22;reasons.push("Fits your budget (~$"+totalCost.toLocaleString()+"/yr incl. living costs).");
+    } else if(budget>=totalCost*0.8){
+      score+=12;warns.push("Slightly over budget (~$"+totalCost.toLocaleString()+"/yr) — a scholarship would close the gap.");
+    } else {
+      score+=3;warns.push("Likely over budget (~$"+totalCost.toLocaleString()+"/yr) without significant aid.");
+    }
+
+    // --- Scholarship (weight 6) ---
+    max+=6;
+    if(scholar==='must'){
+      if(u.scholarship>=3){score+=6;reasons.push("Good track record of scholarships (incl. CSC) for international students.");}
+      else if(u.scholarship===2){score+=3;}
+      else {warns.push("Fewer scholarship opportunities here.");}
+    } else { score+= (u.scholarship>=2?5:3); if(u.scholarship>=3) reasons.push("Scholarships (incl. CSC) commonly available."); }
+
+    // --- Religious / lifestyle (weight 6 + bonus when required) ---
+    max+=6;
+    if(halal){
+      if(u.halal>=5){score+=10;reasons.push("Excellent for Muslim students — halal canteens, prayer facilities & local Muslim community.");}
+      else if(u.halal===4){score+=7;reasons.push("Good halal dining and prayer options on/near campus.");}
+      else {score+=4;reasons.push("Has a halal canteen window; Muslim community present.");}
+    } else { score+=4; }
+
+    // --- Climate (weight 5) ---
+    max+=5;
+    if(climate==='any'){score+=5;}
+    else if(climate==='warm'){ if(u.climate==='warm'){score+=5;reasons.push("Warm climate, similar to Indonesia.");} else if(u.climate==='mild'){score+=3;} else {warns.push("Cold winters — quite different from Indonesia.");}}
+    else { if(u.climate!=='cold'){score+=5;} else {score+=2;warns.push("Cold winters.");}}
+
+    // --- City type (weight 5) ---
+    max+=5;
+    if(city==='any'){score+=5;}
+    else if(city===u.citytype){score+=5;}
+    else {score+=2;}
+
+    // --- Prestige preference adjustment ---
+    if(prestige==='top'){ if(u.tier<=2) score+=6; }
+    else if(prestige==='safe'){ if(u.tier>=4) score+=6; }
+
+    const pct=Math.round(Math.min(100,(score/max)*100));
+    scored.push({u,pct,cat,reasons,warns,totalCost});
+  });
+
+  scored.sort((a,b)=>b.pct-a.pct);
+  render(scored,{grade,selectedMajor,budget,halal});
+}
+
+function catLabel(c){return c==='match'?'Good Match':c==='safety'?'Safety / High Chance':'Reach';}
+function meterColor(p){return p>=75?'var(--match)':p>=55?'var(--accent2)':'var(--reach)';}
+
+function render(list,ctx){
+  const box=document.getElementById('results');
+  if(!list.length){
+    box.innerHTML='<div class="card"><div class="empty">No universities matched your filters. Try turning off the halal-required filter or widening your budget.</div></div>';
+    box.scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  const top=list.slice(0,8);
+  const safetyCount = top.filter(r=>r.cat==='safety').length;
+  const topNames = top.slice(0,3).map(r=>r.u.name);
+  LEAD_CTX = {grade:ctx.grade, major:ctx.selectedMajor, budget:ctx.budget, halal:ctx.halal, schools:topNames};
+
+  // ---- lead-capture card (sits above the recommendations) ----
+  const leadHead = safetyCount>0
+    ? '<span class="big">'+safetyCount+' sekolah</span> di daftarmu realistis untuk jalur jaminan masuk'
+    : 'Mau tahu sekolah mana yang <span class="big">realistis & terjangkau</span> untukmu?';
+  let html =
+    '<div class="lead" id="leadCard">'
+    + '<h2>🎯 '+leadHead+'</h2>'
+    + '<p class="sub2">Dapatkan <b>konsultasi GRATIS 1-on-1</b> + rencana jaminan masuk lewat WhatsApp. '
+    + 'Tim kami bantu kamu dari pilih sekolah, dokumen, sampai diterima.</p>'
+    + '<div class="frow">'
+    +   '<input id="leadName" type="text" placeholder="Nama kamu" autocomplete="name">'
+    +   '<input id="leadPhone" type="tel" placeholder="Nomor WhatsApp (mis. 0812...)" autocomplete="tel">'
+    +   '<button onclick="submitLead()">💬 Kirim profil saya ke WhatsApp</button>'
+    + '</div>'
+    + '<div class="err" id="leadErr"></div>'
+    + '<p class="trust">Gratis · Tanpa biaya untuk konsultasi awal · Dijawab langsung oleh tim kami</p>'
+    + '</div>';
+
+  html+='<div class="card"><h2 class="section">Your Recommendations</h2>';
+  html+='<div class="summarybar">'
+     + '<span class="pill">Grade <b>'+ctx.grade+'/100</b></span>'
+     + '<span class="pill">Major <b>'+ctx.selectedMajor+'</b></span>'
+     + '<span class="pill">Budget <b>$'+ctx.budget.toLocaleString()+'/yr</b></span>'
+     + '<span class="pill">Halal filter <b>'+(ctx.halal?'On':'Off')+'</b></span>'
+     + '<span class="pill"><b>'+top.length+'</b> matches shown</span>'
+     + '</div>';
+
+  top.forEach((r,i)=>{
+    const u=r.u;
+    html+='<div class="uni"><div class="rank">'+(i+1)+'</div>'
+      + '<div class="scorebox"><div class="num" style="color:'+meterColor(r.pct)+'">'+r.pct+'</div><div class="lbl">match</div></div>'
+      + '<span class="cat '+r.cat+'">'+catLabel(r.cat)+'</span>'
+      + '<h3>'+u.name+'</h3>'
+      + '<div class="loc">📍 '+u.city+'  ·  ~$'+r.totalCost.toLocaleString()+'/yr total (tuition + living)</div>'
+      + '<div class="meter"><i style="width:'+r.pct+'%;background:'+meterColor(r.pct)+'"></i></div>'
+      + '<div class="tagrow">'
+        + '<span class="tag">Tuition ≈ $'+u.tuition.toLocaleString()+'/yr</span>'
+        + '<span class="tag">Living ≈ $'+u.living.toLocaleString()+'/yr</span>'
+        + (u.halal>=4?'<span class="tag h">★ Very Muslim-friendly</span>':(u.halal>=3?'<span class="tag h">Halal available</span>':''))
+        + (u.scholarship>=3?'<span class="tag">Scholarships likely</span>':'')
+        + (u.en>=3?'<span class="tag">English programs</span>':'')
+        + '</div>'
+      + '<ul class="reasons">';
+    r.reasons.slice(0,5).forEach(x=>html+='<li>'+x+'</li>');
+    r.warns.slice(0,2).forEach(x=>html+='<li class="warn">'+x+'</li>');
+    html+='</ul></div>';
+  });
+
+  html+='<p class="hint" style="margin-top:8px">Categories: <b style="color:var(--safety)">Safety</b> = strong admission chance · <b style="color:var(--match)">Match</b> = well-aligned · <b style="color:var(--reach)">Reach</b> = ambitious, apply if it\'s a dream school. Apply to a mix of all three.</p>';
+  html+='<div class="ctaMini"><button onclick="document.getElementById(\'leadCard\').scrollIntoView({behavior:\'smooth\'});document.getElementById(\'leadName\').focus();">💬 Minta rencana jaminan masuk gratis →</button></div>';
+  html+='</div>';
+  box.innerHTML=html;
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+/* ---- build WhatsApp deep link with the student's profile pre-filled ---- */
+function submitLead(){
+  const err = document.getElementById('leadErr');
+  const name = (document.getElementById('leadName').value||'').trim();
+  let phone = (document.getElementById('leadPhone').value||'').replace(/[^0-9]/g,'');
+  err.textContent='';
+
+  if(name.length<2){ err.textContent='Tolong isi nama kamu dulu ya.'; return; }
+  if(phone.length<8){ err.textContent='Nomor WhatsApp belum benar — cek lagi ya.'; return; }
+  if(WA_NUMBER.indexOf('X')>-1){
+    err.textContent='⚠️ Nomor WhatsApp bisnis belum diatur (lihat CONFIG di kode).';
+    return;
+  }
+  // normalize Indonesian numbers: 08xx -> 628xx
+  if(phone.charAt(0)==='0') phone='62'+phone.slice(1);
+
+  const c = LEAD_CTX || {};
+
+  // --- record the lead first (fire-and-forget), so it's captured even if
+  //     the student never finishes the WhatsApp chat ---
+  if(LEAD_ENDPOINT){
+    const payload = {
+      name: name,
+      phone: phone,
+      grade: c.grade || '',
+      major: c.major || '',
+      budget: c.budget || '',
+      halal: c.halal ? 'Ya' : 'Tidak',
+      schools: (c.schools||[]).join(' | '),
+      page: location.href
+    };
+    try{
+      fetch(LEAD_ENDPOINT, {
+        method:'POST',
+        mode:'no-cors',
+        keepalive:true,
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      }).catch(function(){});
+    }catch(e){/* never block the WhatsApp handoff */}
+  }
+
+  const schools = (c.schools||[]).map((s,i)=>(i+1)+'. '+s).join('\n');
+  const halalTxt = c.halal ? 'Ya (butuh kampus ramah Muslim)' : 'Tidak wajib';
+
+  const msg =
+    'Halo '+BRAND+'! 👋\n'+
+    'Saya '+name+', baru dapat hasil dari University Finder dan mau konsultasi gratis soal opsi jaminan masuk.\n\n'+
+    '📋 Profil saya:\n'+
+    '• WhatsApp: '+phone+'\n'+
+    '• Nilai rata-rata: '+(c.grade||'-')+'/100\n'+
+    '• Jurusan diminati: '+(c.major||'-')+'\n'+
+    '• Budget/tahun: $'+((c.budget||0).toLocaleString())+'\n'+
+    '• Kebutuhan halal: '+halalTxt+'\n\n'+
+    '🎯 Sekolah yang cocok menurut tool:\n'+(schools||'-')+'\n\n'+
+    'Tolong bantu cek sekolah mana yang paling realistis untuk saya & rencana pendaftarannya. Terima kasih! 🙏';
+
+  const url='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
+</script>
+</body>
+</html>
