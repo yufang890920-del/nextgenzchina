@@ -83,6 +83,17 @@
   .ctaMini{text-align:center;margin-top:8px}
   .ctaMini button{padding:13px 22px;border:1px solid #25D366;border-radius:12px;background:transparent;color:#25D366;font-size:15px;font-weight:700;cursor:pointer}
   .ctaMini button:hover{background:rgba(37,211,102,.1)}
+  /* ---- locked result cards (lead gate) ---- */
+  .uni.locked{min-height:150px}
+  .uni.locked .fakebar{height:13px;border-radius:6px;background:linear-gradient(90deg,#2a3a60,#1c2a4a);margin:9px 0;filter:blur(3px)}
+  .uni.locked .fakebar.w60{width:60%}
+  .uni.locked .fakebar.w85{width:85%}
+  .uni.locked .fakebar.w40{width:40%}
+  .uni.locked h3{filter:blur(7px);user-select:none}
+  .lockveil{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(10,16,32,.55);border-radius:14px;backdrop-filter:blur(1px);z-index:2}
+  .lockveil p{margin:0;font-weight:700;font-size:15px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .lockveil button{padding:11px 20px;border:none;border-radius:10px;background:linear-gradient(90deg,#25D366,#1ebe5d);color:#04221c;font-weight:800;font-size:14px;cursor:pointer}
+  .lockveil button:hover{filter:brightness(1.07)}
 </style>
 </head>
 <body>
@@ -210,7 +221,7 @@ const BRAND     = "NextGenZChina.id";  // nama brand yg muncul di pesan
 /* Endpoint Google Sheet (Apps Script /exec URL) untuk merekam SEMUA lead.
    Kosongkan ("") kalau belum siap — form tetap jalan, cuma tidak merekam.
    Tempel URL yg kamu dapat setelah deploy Apps Script di sini: */
-const LEAD_ENDPOINT = "https://script.google.com/macros/s/AKfycby63lIie10DJl8UnER31aB6osT4T5tO4ZXLUhexp9rDVsGDRg0VpmeS3zp8WO3csdIhtA/exec";
+const LEAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbxBrdFRenccvmfkR0-iJycoexUB7W-GQL6JHPVBGYxWn8Z58B6-jaDpeS-DkJ6oFkrn/exec";
 
 /* ============================================================
    DATA: curated set of Chinese universities popular with /
@@ -288,6 +299,14 @@ const MAJORS = ["Engineering","Computer Science","Medicine (MBBS)","Business","E
 
 let selectedMajor = "Engineering";
 let LEAD_CTX = null;
+let UNLOCKED = false;   // becomes true after the student submits name + WhatsApp
+
+function goLead(){
+  const lc=document.getElementById('leadCard');
+  if(lc){ lc.scrollIntoView({behavior:'smooth'}); }
+  const ln=document.getElementById('leadName');
+  if(ln){ setTimeout(()=>ln.focus(), 400); }
+}
 
 /* render major chips */
 const mc = document.getElementById('majorChips');
@@ -437,7 +456,7 @@ function render(list,ctx){
   let html =
     '<div class="lead" id="leadCard">'
     + '<h2>🎯 '+leadHead+'</h2>'
-    + '<p class="sub2">Dapatkan <b>konsultasi GRATIS 1-on-1</b> + rencana jaminan masuk lewat WhatsApp. '
+    + '<p class="sub2">Isi nama + nomor WhatsApp untuk <b>membuka semua hasil</b> dan dapatkan <b>konsultasi GRATIS 1-on-1</b> + rencana jaminan masuk. '
     + 'Tim kami bantu kamu dari pilih sekolah, dokumen, sampai diterima.</p>'
     + '<div class="frow">'
     +   '<input id="leadName" type="text" placeholder="Nama kamu" autocomplete="name">'
@@ -459,6 +478,20 @@ function render(list,ctx){
 
   top.forEach((r,i)=>{
     const u=r.u;
+    if(i>0 && !UNLOCKED){
+      // ---- locked teaser card: real score & category, hidden identity ----
+      html+='<div class="uni locked"><div class="rank">'+(i+1)+'</div>'
+        + '<div class="scorebox"><div class="num" style="color:'+meterColor(r.pct)+'">'+r.pct+'</div><div class="lbl">match</div></div>'
+        + '<span class="cat '+r.cat+'">'+catLabel(r.cat)+'</span>'
+        + '<h3>Universitas Tersembunyi</h3>'
+        + '<div class="fakebar w60"></div><div class="fakebar w85"></div><div class="fakebar w40"></div>'
+        + '<div class="lockveil">'
+        +   '<p>🔒 Sekolah #'+(i+1)+' — cocok '+r.pct+'%</p>'
+        +   '<button onclick="goLead()">🔓 Buka semua hasil — GRATIS</button>'
+        + '</div>'
+        + '</div>';
+      return;
+    }
     html+='<div class="uni"><div class="rank">'+(i+1)+'</div>'
       + '<div class="scorebox"><div class="num" style="color:'+meterColor(r.pct)+'">'+r.pct+'</div><div class="lbl">match</div></div>'
       + '<span class="cat '+r.cat+'">'+catLabel(r.cat)+'</span>'
@@ -544,6 +577,12 @@ function submitLead(){
 
   const url='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
   window.open(url,'_blank');
+
+  // unlock the full school list — promise kept the moment they submit
+  if(!UNLOCKED){
+    UNLOCKED = true;
+    recommend();
+  }
 }
 </script>
 </body>
